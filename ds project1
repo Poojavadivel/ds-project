@@ -1,0 +1,75 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#define MAX_NODES 100  
+typedef struct Node {
+    int id;
+    struct Node* next;
+} Node;
+typedef struct {
+    Node* head[MAX_NODES];  
+    int size;               
+} MLMNetwork;
+void initializeNetwork(MLMNetwork* network) {
+    network->size = 0;
+    for (int i = 0; i < MAX_NODES; i++) {
+        network->head[i] = NULL;
+    }
+}
+void addRecruit(MLMNetwork* network, int recruiter, int recruit) {
+    Node* newNode = (Node*)malloc(sizeof(Node));
+    newNode->id = recruit;
+    newNode->next = network->head[recruiter];
+    network->head[recruiter] = newNode;
+}
+void displayNetwork(MLMNetwork* network) {
+    for (int i = 0; i < MAX_NODES; i++) {
+        if (network->head[i] != NULL) {
+            printf("Recruiter %d: ", i);
+            Node* temp = network->head[i];
+            while (temp) {
+                printf("%d -> ", temp->id);
+                temp = temp->next;
+            }
+            printf("NULL\n");
+        }
+    }
+}
+int countRecruits(MLMNetwork* network, int recruiter) {
+    int count = 0;
+    Node* temp = network->head[recruiter];
+    while (temp) {
+        count++;
+        temp = temp->next;
+    }
+    return count;
+}
+void freeNetwork(MLMNetwork* network) {
+    for (int i = 0; i < MAX_NODES; i++) {
+        Node* temp = network->head[i];
+        while (temp) {
+            Node* toFree = temp;
+            temp = temp->next;
+            free(toFree);
+        }
+    }
+}
+int main() {
+    MLMNetwork network;
+    initializeNetwork(&network);
+
+    addRecruit(&network, 0, 1);  // Recruiter 0 recruits 1
+    addRecruit(&network, 0, 2);  // Recruiter 0 recruits 2
+    addRecruit(&network, 1, 3);  // Recruiter 1 recruits 3
+    addRecruit(&network, 1, 4);  // Recruiter 1 recruits 4
+    addRecruit(&network, 2, 5);  // Recruiter 2 recruits 5
+
+    printf("MLM Network Hierarchy:\n");
+    displayNetwork(&network);
+
+    int recruiter = 1;
+    printf("\nNumber of recruits under recruiter %d: %d\n", recruiter, countRecruits(&network, recruiter));
+
+    freeNetwork(&network);
+    return 0;
+}
